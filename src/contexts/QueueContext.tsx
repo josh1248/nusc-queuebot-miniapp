@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
+import { addUser, nextUser, removeUser } from "./FirebaseContext";
 
 export interface QueueUser {
   id: string;
@@ -99,6 +100,7 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     setQueue([...queue, newUser]);
+    addUser(newUser.id);
     toast.success(`You joined the queue at position #${newPosition}!`);
   };
 
@@ -106,12 +108,14 @@ export const QueueProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!userId || !isInQueue) return;
     
     setQueue(queue.filter(user => user.id !== userId));
+    removeUser(userId);
     toast.info("You've left the queue");
   };
 
   const nextInQueue = () => {
     if (!isAdmin) return;
     
+    nextUser();
     setCurrentPosition(prev => prev + 1);
     
     // Mark users with positions less than the new current position as inactive
